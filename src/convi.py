@@ -171,7 +171,7 @@ def create_model():
 
 def model_fit(model):
     model.fit([calcium_train_padded, ids_oneshot], 
-        spikes_train_padded, epochs=1,
+        spikes_train_padded, epochs=50,
         batch_size=5, validation_split=0.2, sample_weight=sample_weight)
     model.save_weights('model_convi_6')
     return model
