@@ -14,6 +14,7 @@ from keras.layers.core import Masking
 from keras.layers.merge import Concatenate
 from keras.layers import Dense, Activation, Dropout, Input, LSTM
 from keras.layers.convolutional import Conv1D
+from keras.callbacks import TensorBoard
 
 from keras import backend as K
 import tensorflow as tf
@@ -102,7 +103,7 @@ def load_data(load_test=True):
         ids_test_stacked = np.hstack(ids_test)
     else:
         ids_test_stacked = []
-    sample_weight = 1. #+ 1.5*(ids_stacked<5)
+    sample_weight = 1. + 1.5*(ids_stacked<5)
     sample_weight /= sample_weight.mean()
     calcium_train_padded[spikes_train_padded<-1] = np.nan
     spikes_train_padded[spikes_train_padded<-1] = np.nan
@@ -139,10 +140,10 @@ def create_model():
     x = Conv1D(10, 300, padding='same', input_shape=(None,1))(main_input)
     x = Activation('tanh')(x)
     x = Dropout(0.3)(x)
-    x = Conv1D(10, 10,padding='same')(x)
+    x = Conv1D(10, 10, padding='same')(x)
     x = Activation('relu')(x)
     x = Dropout(0.2)(x)
-    x = Concatenate()([x,dataset_input])
+    x = Concatenate()([x, dataset_input])
     x = Conv1D(10, 5, padding='same')(x)
     x = Activation('relu')(x)
     x = Dropout(0.1)(x)
@@ -170,9 +171,13 @@ def create_model():
 
 
 def model_fit(model):
+    tbCallBack = TensorBoard(log_dir='./logtest2', histogram_freq=0,
+            write_graph=True, write_images=True)
+
     model.fit([calcium_train_padded, ids_oneshot], 
-        spikes_train_padded, epochs=50,
-        batch_size=5, validation_split=0.2, sample_weight=sample_weight)
+        spikes_train_padded, epochs=1,
+        batch_size=5, validation_split=0.2, sample_weight=sample_weight,
+        callbacks=[tbCallBack])
     model.save_weights('model_convi_6')
     return model
 
@@ -201,6 +206,6 @@ if __name__ == '__main__':
     ids_stacked, ids_test_stacked, sample_weight = load_data()
 
     model = create_model()
-    model = model_fit(model)
-    model_test(model)
+    #model = model_fit(model)
+    #model_test(model)
 
