@@ -200,6 +200,21 @@ def model_test(model):
                 '.test.spikes.csv', sep=',', index=False)
 
 
+def plot_kernels(model, layer=0):
+    srate = 100.
+    weights = model.get_weights()[layer]
+    t = np.arange(-weights.shape[0]/srate/2,
+                weights.shape[0]/srate/2, 1./srate)
+    for j in range(weights.shape[2]):
+        plt.plot(t, weights[:, 0, j] + .3*j)
+
+    plt.xlabel('Time [s]')
+    plt.ylabel('Kernel amplitudes')
+    plt.title('Convolutional kernels of the input layer')
+    plt.show()
+
+
+
 if __name__ == '__main__':
     calcium_train, calcium_train_padded, spikes_train_padded,\
     calcium_test_padded, ids_oneshot, ids_oneshot_test,\
