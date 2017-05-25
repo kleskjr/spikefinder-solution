@@ -19,8 +19,7 @@ from keras.callbacks import TensorBoard
 from keras import backend as K
 import tensorflow as tf
 
-dataloc = '../data/'
-dataloc = '/opt/spikefinder/data/'
+dataloc = '/opt/data/'
 
 def pearson_corr(y_true, y_pred, pool=True):
     """
@@ -126,7 +125,7 @@ def load_data(load_test=True):
         ids_oneshot_test[n, :, i] = 1.
 
     return calcium_train, calcium_train_padded, spikes_train_padded,\
-            calcium_test_padded, ids_oneshot, ids_oneshot_test,\
+            calcium_test, calcium_test_padded, ids_oneshot, ids_oneshot_test,\
             ids_stacked, ids_test_stacked, sample_weight
             
 
@@ -185,7 +184,7 @@ def model_fit(model):
 
 def model_test(model):
     #model.compile(loss=pearson_corr,optimizer='adam')
-    #model.load_weights('model_convi_6')
+    model.load_weights('model_convnet_6')
     pred_train = model.predict([calcium_train_padded, ids_oneshot])
     pred_test = model.predict([calcium_test_padded, ids_oneshot_test])
 
@@ -218,10 +217,11 @@ def plot_kernels(model, layer=0):
 
 if __name__ == '__main__':
     calcium_train, calcium_train_padded, spikes_train_padded,\
-    calcium_test_padded, ids_oneshot, ids_oneshot_test,\
+    calcium_test, calcium_test_padded, ids_oneshot, ids_oneshot_test,\
     ids_stacked, ids_test_stacked, sample_weight = load_data()
 
     model = create_model()
-    #model = model_fit(model)
-    #model_test(model)
+    model = model_fit(model)
+    model_test(model)
+    #plot_kernels(model)
 
